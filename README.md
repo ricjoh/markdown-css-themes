@@ -14,3 +14,5 @@ pandoc --toc -s test.wm -f mediawiki -t markdown -o test.md
 pandoc -s test.wm -f mediawiki -t markdown -o test.md
 pandoc -s test.wm -f mediawiki -t markdown -o test.md
 ```
+
+[Install Pandoc](https://github.com/jgm/pandoc/releases/tag/3.7.0.2)
