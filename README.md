@@ -1,7 +1,16 @@
-# [Markdown css theme collection](http://jasonm23.github.io/markdown-css-themes)
+# [Fork of Markdown css theme collection](http://jasonm23.github.io/markdown-css-themes)
 
-### Contributing
-
-Go ahead and fork, all pull requests are welcome, and are accepted if they're broadly useful.
-
-Thank you.
+```
+curl 'https://wiki.fai2.com/Main_Page?action=raw' | pandoc -f mediawiki -t commonmark ome.md
+curl 'https://wiki.fai2.com/Main_Page?action=raw' | pandoc -f mediawiki -t commonmark -o ome.md
+curl 'https://wiki.fai2.com/Main_Page?action=raw' | pandoc -f mediawiki -t markdown -o ome.md
+curl 'https://wiki.fai2.com/Main_Page?action=raw' | pandoc -f html -t markdown -o wikihome.md
+pandoc test.md -f mediawiki -t markdown -o test.md
+pandoc test.mw -f mediawiki -t markdown -o test.md
+pandoc test.wm -f mediawiki -t markdown -o test.md
+pandoc test.wm -f mediawiki -t markdown -o test.md
+pandoc test.wm -f mediawiki -t markdown -o test.md
+pandoc --toc -s test.wm -f mediawiki -t markdown -o test.md
+pandoc -s test.wm -f mediawiki -t markdown -o test.md
+pandoc -s test.wm -f mediawiki -t markdown -o test.md
+```
