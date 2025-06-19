@@ -8,16 +8,16 @@ my $skipping = 0;
 while (<>) {
 	chomp;
 	# Enter skip mode on the exact opening fence
-	print "raw: $_\n";
+	# print "raw: $_\n";
 	if (!$skipping and ($_ =~ /{=mediawiki}$/)) {
 		$skipping = 1;
 		next;
 	}
 	# Exit skip mode on the exact closing fence
-	# if ($skipping and $_ =~ /\`\`\`$/) {
-	# 	$skipping = 0;
-	# 	next;
-	# }
+	if ($skipping and $_ =~ /\`\`\`$/) {
+		$skipping = 0;
+	 	next;
+	 }
 	# If not skipping, print the line
-	print "notski $_\n" unless $skipping;
+	print "$_\n" unless $skipping;
 }
