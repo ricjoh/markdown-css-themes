@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 use strict;
 use warnings;
 
@@ -9,12 +9,12 @@ while (<>) {
 	chomp;
 	# Enter skip mode on the exact opening fence
 	# print "raw: $_\n";
-	if (!$skipping and ($_ =~ /{=mediawiki}$/)) {
+	if (!$skipping and ($_ =~ /^\`\{\{/)) {
 		$skipping = 1;
 		next;
 	}
 	# Exit skip mode on the exact closing fence
-	if ($skipping and $_ =~ /\`\`\`$/) {
+	if ($skipping and $_ =~ /^\}\}\`/) {
 		$skipping = 0;
 	 	next;
 	 }
