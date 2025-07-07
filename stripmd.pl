@@ -1,23 +1,26 @@
 #!/usr/bin/perl
+use XMMX::Utils;
 use strict;
 use warnings;
 
-# Flag to track whether we're inside the mediawiki fence
-my $skipping = 0;
 
-while (<>) {
-	chomp;
-	# Enter skip mode on the exact opening fence
-	# print "raw: $_\n";
-	if (!$skipping and ($_ =~ /^\`\{\{/)) {
-		$skipping = 1;
-		next;
-	}
-	# Exit skip mode on the exact closing fence
-	if ($skipping and $_ =~ /^\}\}\`/) {
-		$skipping = 0;
-	 	next;
-	 }
-	# If not skipping, print the line
-	print "$_\n" unless $skipping;
+my $mdfile = '';
+while (my $line = <STDIN>) {
+    $mdfile .= $line;
 }
+
+$mdfile =~ s/\`\{\{.*?\}\}\`\{=mediawiki\}//gs;
+$mdfile =~ s/\xc2\xa0/ /gs;
+
+while ($mdfile =~ m/\[#?([-A-Za-z0-9_\n ]*?)\]\([^)]*?\)\{.wikilink\}/s) {
+    my $text = $1;
+	my $link;
+	($link = $1) =~ s/[\s_]/-/g;
+	my $newlink = lc("[$text](#h-$link)");
+#	print STDERR "$text\n$newlink\n";
+	$mdfile =~ s/\[#?[-A-Za-z0-9_\n ]*?\]\([^)]*?\)\{.wikilink\}/$newlink/s;
+}
+
+print $mdfile;
+
+__END__
