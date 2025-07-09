@@ -265,8 +265,8 @@ UPDATE CustomerOrder SET OfferID = 'BFA6BD8B-A614-45E9-8CE0-99C4F55BA5A3' where 
 Note: This will take 1.5 - 2 minutes to process.
 
 ``` {.sql .numberLines}
-UPDATE Offer 
-SET OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08' 
+UPDATE Offer
+SET OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08'
 WHERE OfferID IN (SELECT OfferID FROM CustomerOrder WHERE EDIDocID IN (143,147));
 ```
 
@@ -430,7 +430,7 @@ DELETE FROM Offer WHERE OfferID = 'offerid';
 SELECT o.OfferID
 FROM Offer o
 LEFT OUTER JOIN CustomerOrder co ON co.OfferID = o.OfferID
-WHERE o.OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08' 
+WHERE o.OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08'
 AND o.CustomerID = '62B545A4-9C0D-430C-A88C-5CB37CC8EBEA' AND EDIDocID IS NULL;
 
 -- With results
@@ -455,7 +455,7 @@ UPDATE Offer uo SET uo.OfferStatusPID = '319FB16C-19F5-4364-82E3-93AD7627AF38' w
 SELECT o.OfferID
 FROM Offer o
 LEFT OUTER JOIN CustomerOrder co ON co.OfferID = o.OfferID
-WHERE o.OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08' 
+WHERE o.OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08'
 AND o.CustomerID = '62B545A4-9C0D-430C-A88C-5CB37CC8EBEA' AND EDIDocID in(2076, 2677);
 
 -- With results
@@ -527,11 +527,11 @@ UPDATE CustomerOrder SET OfferID = '47967696-947C-44BF-B61F-0F82F1460615' where 
 
 ``` mysql
  --offered
-UPDATE InventoryStatus SET Pieces=0, Weight=0 
+UPDATE InventoryStatus SET Pieces=0, Weight=0
 WHERE InventoryStatusPID = 'C67C99CD-492D-4227-92E3-0A3B8DF6EEC8' AND VatID = '<vat-id>';
 
  --avail
-UPDATE InventoryStatus SET Pieces=0, Weight=0 
+UPDATE InventoryStatus SET Pieces=0, Weight=0
 WHERE InventoryStatusPID = 'D99FC80E-52BC-4AD0-9B10-3E5A5F07EAE0' AND VatID = '<vat-id>';
 
  --unavail
@@ -563,8 +563,8 @@ SELECT Pieces, Weight FROM Vat WHERE VatID = '<vat-id>';
 ``` mysql
 SELECT CustomerOrderID, EDIDocID, CustomerOrderNum, OfferID, CustPONum FROM CustomerOrder WHERE CustomerOrderNum LIKE '%85271433';
 
-INSERT INTO CustomerOrderDetail 
-( CustomerOrderID, EDIDocID, LineNum, Qty, QtyUOM, PartNum, ShipToPartNum, POLine ) 
+INSERT INTO CustomerOrderDetail
+( CustomerOrderID, EDIDocID, LineNum, Qty, QtyUOM, PartNum, ShipToPartNum, POLine )
 VALUES ( 5103, 34792, 19, 85, 'CA', '174827', '174827', '000190');
 ```
 

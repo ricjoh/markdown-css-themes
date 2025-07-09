@@ -11,12 +11,17 @@ while (my $line = <STDIN>) {
 
 $mdfile =~ s/\`\{\{.*?\}\}\`\{=mediawiki\}//gs;
 $mdfile =~ s/\xc2\xa0/ /gs;
+$mdfile =~ s/## Latest GitHub Commits.*//gs;
+$mdfile =~ s/\`\`\`\s(?:\{\.|)(.+?)\b.*?\n/\`\`\`\L$1\n/gs;
+$mdfile =~ s/\`\`\`mysql/\`\`\`sql/gs;
+
 
 while ($mdfile =~ m/\[#?([-A-Za-z0-9_\n ]*?)\]\([^)]*?\)\{.wikilink\}/s) {
     my $text = $1;
 	my $link;
 	($link = $1) =~ s/[\s_]/-/g;
-	my $newlink = lc("[$text](#h-$link)");
+	$link = lc('#h-'.$link);
+	my $newlink = "[$text]($link)";
 #	print STDERR "$text\n$newlink\n";
 	$mdfile =~ s/\[#?[-A-Za-z0-9_\n ]*?\]\([^)]*?\)\{.wikilink\}/$newlink/s;
 }

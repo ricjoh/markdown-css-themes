@@ -24,8 +24,8 @@ communication server, running open AS2. The development server does not
 actually communicate with the outside world, but exists to be a parallel
 endpoint for data to mirror the live server.
 
-See [as2 server
-stuff](#h-as2-server-stuff)
+See [AS2 Server
+Stuff](#h-as2-server-stuff)
 later in this document.
 
 ## Glossary
@@ -100,8 +100,8 @@ This is almost exclusively a License Plate Issue. If you search the EDI
 Document list (/edidocument/list) for that DN# (it\'s a long number that
 begins with 8), you see that the document is likely a 943 with Status of
 \"Translated\" and not \"imported\" like the other 943 documents. Follow
-steps in [license plate
-issues](#h-license-plate-issues)
+steps in [License Plate
+Issues](#h-license-plate-issues)
 
 ### Pending Offer is Missing EDI Information
 
@@ -117,7 +117,7 @@ Look at offer notes for **EDI#.**
 
 **OFFER ID** is in the URL
 
-Follow instructions at: [assign an edi id to an
+Follow instructions at: [Assign an EDI ID to an
 offer](#h-assign-an-edi-id-to-an-offer)
 
 ### Outbound wasn\'t sent
@@ -127,14 +127,13 @@ work if the transaction number is 940 They should give you a customer PO
 
 Fix:
 
-``` SQL
+```sql
 -- get BOLID
 select BOLID from BillOfLading where CustomerPO = '741355';
 -- reset it to unshipped.
 update BillOfLading set StatusPID = '1E732327-AD3E-42C1-9602-F505B3A75E7E' where BOLID = '15EDA291-64CA-421C-BDFB-C2C91AFFAABA';
 ```
 
-Then go back to shipping screen
 (https://tracker.oshkoshcheese.com/billoflading/shipdetail/BOLID) and
 mark all lines shipped and send EDI. Watch the debug/error logs for
 errors. I have no idea why it misses this sometimes, but it just started
@@ -248,11 +247,10 @@ URL: `/offer/edit/BFA6BD8B-A614-45E9-8CE0-99C4F55BA5A3` EDI ID (from
 notes): 3565 NEW OFFER ID (from URL):
 BFA6BD8B-A614-45E9-8CE0-99C4F55BA5A3
 
-``` sql
+```sql
 UPDATE CustomerOrder SET OfferID = 'BFA6BD8B-A614-45E9-8CE0-99C4F55BA5A3' where EDIDocID = 3565;
 ```
 
-1.  Refresh Screen
 2.  Click BOL in top button bar
 3.  Click \'Save\'
 4.  Copy BOL ID from URL (Ex: D6DD138A-9EAB-423F-A780-458116CAEBD3 )
@@ -265,23 +263,21 @@ UPDATE CustomerOrder SET OfferID = 'BFA6BD8B-A614-45E9-8CE0-99C4F55BA5A3' where 
 
 Note: This will take 1.5 - 2 minutes to process.
 
-``` {.sql .numberLines}
+```sql
 UPDATE Offer 
 SET OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08' 
 WHERE OfferID IN (SELECT OfferID FROM CustomerOrder WHERE EDIDocID IN (143,147));
 ```
-
-#### Or By OfferID
+#### 
 
 Example, for this Offer:
 
 `/offer/edit/4230408C-6C23-42FA-B447-CC45316ABE69`
 
-``` {.sql .numberLines}
+```sql
 update Offer set OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08' where OfferID = '4230408C-6C23-42FA-B447-CC45316ABE69';
 ```
-
-### Reset Non-EDI Offers from \"Expired\" to \"Open\"
+### 
 
 #### Or By OfferID
 
@@ -289,11 +285,10 @@ Example, for this Offer:
 
 `/offer/edit/4230408C-6C23-42FA-B447-CC45316ABE69`
 
-``` {.sql .numberLines}
+```sql
 update Offer set OfferStatusPID = '9A085965-75B4-4EE2-85A8-02D61924DCC8' where OfferID = '4230408C-6C23-42FA-B447-CC45316ABE69';
 ```
-
-## License Plate Issues
+## 
 
 ### Patch Duplicate License plate
 
@@ -309,16 +304,15 @@ Error log will show duplicate license plate
 
 Fix the whole delivery:
 
-``` {.sql .numberLines}
+```sql
 SELECT DeliveryID FROM DeliveryDetail WHERE LicensePlate = '1942102789'; -- get DELIVERYID
 UPDATE DeliveryDetailReceipt SET LicensePlate = DeliveryDetailID WHERE DeliveryDetailID IN (SELECT DeliveryDetailID FROM DeliveryDetail WHERE DeliveryID = DELIVERYID);
 UPDATE DeliveryDetail SET LicensePlate = DeliveryDetailID WHERE DeliveryID = DELIVERYID;
 ```
 
-Note, the status of the ID they want resolved is converted do this flow
 instead:
 
-``` {.sql .numberLines}
+```sql
 DELETE from Delivery where EDIDocID = EDIDocID;
 DELETE from DeliveryDetail where EDIDocID = EDIDocID;
 UPDATE EDIDocument set status = 'Translated' where DocID = 21336;
@@ -327,7 +321,6 @@ UPDATE DeliveryDetailReceipt SET LicensePlate = DeliveryDetailID WHERE DeliveryD
 UPDATE DeliveryDetail SET LicensePlate = DeliveryDetailID WHERE DeliveryID = DELIVERYID;
 ```
 
-3\) Do this to re-run import:
 
 [`https://tracker.oshkoshcheese.com/edidocument/x12tojson/943/GLC/EDIDOCID`](https://tracker.oshkoshcheese.com/edidocument/x12tojson/943/GLC/EDIDOCID)
 
@@ -341,11 +334,10 @@ the list. Get the DocID from the first column.
 
 Then:
 
-``` {.sql .numberLines}
+```sql
 UPDATE EDIDocument SET Status = 'New', JsonObject = '' WHERE DocID = <docid>;
 ```
 
-Tail the error log and run this \"conversion script\":
 
 `chimera 14:08:20 > php /web/html/tracker.oshkoshcheese.com/public/edi/translateNew.php`
 
@@ -355,11 +347,10 @@ If there\'s a duplicate LPN, you\'ll see an error like this:
 
 Get the path to the X12 file that has the problem:
 
-``` {.sql .numberLines}
+```sql
 SELECT X12FilePath FROM EDIDocument WHERE DocID = <docid>;
 ```
 
-Edit the file and search for the duplicate key, which will be preceeded
 by **LV\*** and followed by **\~N9\***. Change the key, maybe by adding
 \".1\" to the end of it (before **\~N9\***). If there is more than one
 occurrence of the LPN, add \".2\" to the next, and so on. Each LPN must
@@ -374,13 +365,12 @@ Once the file imports cleanly, they should be back in business.
 
 ### Reset Incoming Delivery to Pending to be received again
 
-``` {.sql .numberLines}
+```sql
 UPDATE Delivery SET StatusPID = '51398435-A4A6-4C41-ACC8-45F6D569057B' WHERE DeliveryID = <delivery_id>;
 ```
+## 
 
-## Delete and Rerun Delivery by EDIDocID
-
-``` {.sql .numberLines}
+```sql
 SELECT DeliveryID from Delivery WHERE EDIDocID = 15710;
 DELETE FROM DeliveryDetailReceipt WHERE DeliveryDetailID IN (SELECT DeliveryDetailID FROM DeliveryDetail WHERE DeliveryID = 3052);
 DELETE FROM DeliveryDetail WHERE DeliveryID = 3052;
@@ -389,45 +379,40 @@ UPDATE EDIDocument SET Status = 'Translated' WHERE DocID = 15710;
 -- Then re-run import.
 -- https://tracker.oshkoshcheese.com/edidocument/x12tojson/943/GLC/15710
 ```
-
-## Common Deletes
+## 
 
 ### Delete draft lots by EDI ID
 
-``` {.sql .numberLines}
+```sql
 delete from Lot where DeliveryID in (select DeliveryID from Delivery where EDIDocID in (4750,4558,4273));
 ```
+### 
 
-### Delete All Traces of Lot by LotNumber
-
-``` {.sql .numberLines}
+```sql
 SELECT LotID as '<lotid>' FROM Lot WHERE LotNumber = '263966';
 DELETE FROM InventoryStatus WHERE VatID in (SELECT VatID from  Vat WHERE LotID = '<lotid>');
 DELETE FROM Vat WHERE LotID = '<lotid>';
 DELETE FROM Lot WHERE LotID = '<lotid>';
 ```
+### 
 
-### Delete All Traces of Vat by VatID
-
-``` {.sql .numberLines}
+```sql
 DELETE FROM InventoryStatus WHERE VatID = '<vatid>';
 DELETE FROM Vat WHERE VatID = '<vatid>';
 ```
+### 
 
-### Delete All Traces of Offer by OfferID
-
-``` mysql
+```sql
 DELETE FROM BillOfLading WHERE OfferID = '<offerid>';
 DELETE FROM OfferItemVat WHERE OfferItemID IN (SELECT OfferItemID from OfferItem WHERE OfferID = '<offerid>');
 DELETE FROM OfferItem WHERE OfferID = '<offerid>';
 DELETE FROM Offer WHERE OfferID = 'offerid';
 ```
-
-## Clean up Pending Offers
+## 
 
 ### Expire GLC offers without EDIDocIDs
 
-``` {.sql .numberLines}
+```sql
 SELECT o.OfferID
 FROM Offer o
 LEFT OUTER JOIN CustomerOrder co ON co.OfferID = o.OfferID
@@ -449,10 +434,9 @@ UPDATE Offer uo SET uo.OfferStatusPID = '319FB16C-19F5-4364-82E3-93AD7627AF38' w
 'E3DA8396-8B78-44B0-AFDE-A31476DD865F',
 'F3E5DA8B-410F-4305-A710-80D4946B4644');
 ```
+### 
 
-### Expire specific EDI Doc IDs
-
-``` {.SQL .numberLines}
+```sql
 SELECT o.OfferID
 FROM Offer o
 LEFT OUTER JOIN CustomerOrder co ON co.OfferID = o.OfferID
@@ -464,8 +448,7 @@ AND o.CustomerID = '62B545A4-9C0D-430C-A88C-5CB37CC8EBEA' AND EDIDocID in(2076, 
 UPDATE Offer uo SET uo.OfferStatusPID = '319FB16C-19F5-4364-82E3-93AD7627AF38' where uo.OfferID in (
 'A2594FED-6EA0-4D3D-ABE9-92C5B1B65AC4', 'DF7678DA-0D2D-4606-9D22-D5E0E5554C59' );
 ```
-
-## Remove Offer from Shipping Screen
+## 
 
 Given offer link
 
@@ -475,11 +458,10 @@ Offer ID is:
 
 `5A496060-0DBC-4D48-A8EB-8B27B5070885`
 
-``` mysql
+```sql
 DELETE FROM BillOfLading WHERE OfferID = '5A496060-0DBC-4D48-A8EB-8B27B5070885';
 ```
-
-## When EDI# and PONum are missing from a pending offer
+## 
 
 1.  Get Offer ID from URL (Say
     <https://tracker.oshkoshcheese.com/offer/edit/32ABE2B6-FA5F-4BCA-B86D-298B1CAFC1B6>
@@ -488,33 +470,29 @@ DELETE FROM BillOfLading WHERE OfferID = '5A496060-0DBC-4D48-A8EB-8B27B5070885';
 3.  Look at offer page. EDI# is in notes.
 4.  Verify it\'s the right offer, this should be null:
 
-``` sql
+```sql
 select OfferID from CustomerOrder where EDIDocID = 14432;
 ```
 
-5\. then:
 
-``` sql
+```sql
 UPDATE CustomerOrder SET OfferID = '32ABE2B6-FA5F-4BCA-B86D-298B1CAFC1B6' where EDIDocID = 14432;
 ```
-
-### Find Them All
+### 
 
 This OfferStatusPID is \"Pending\"
 
-``` sql
+```sql
 select OfferID, REGEXP_SUBSTR(Note,"[0-9]+") AS EDIDocID from Offer where OfferStatusPID = 'C478D7C5-25FC-439B-A5A4-A155493ABC08';
 ```
 
-Take results into VSCode and hack it to something like:
 
-``` sql
+```sql
 UPDATE CustomerOrder SET OfferID = '174607F0-512C-4F61-99F4-B0D799AFEB11' where EDIDocID = 13303;
 UPDATE CustomerOrder SET OfferID = '26FAA577-28B1-46B7-BA00-1FDEE05640AC' where EDIDocID = 14428;
 UPDATE CustomerOrder SET OfferID = '47967696-947C-44BF-B61F-0F82F1460615' where EDIDocID = 11199;
 ```
-
-## Inventory Management
+## 
 
 **Get all vats in a Lot:**
 
@@ -526,7 +504,7 @@ UPDATE CustomerOrder SET OfferID = '47967696-947C-44BF-B61F-0F82F1460615' where 
 
 **Update Various Statii:**
 
-``` mysql
+```sql
  --offered
 UPDATE InventoryStatus SET Pieces=0, Weight=0 
 WHERE InventoryStatusPID = 'C67C99CD-492D-4227-92E3-0A3B8DF6EEC8' AND VatID = '<vat-id>';
@@ -543,8 +521,7 @@ WHERE InventoryStatusPID = '235E42CD-31BE-42F0-983A-24675305ED04' AND VatID = '<
 UPDATE InventoryStatus SET Pieces=0, Weight=0
 WHERE InventoryStatusPID = 'D6BB15FC-BA12-46A2-A5EE-9CCCB5BCAC5E' AND VatID = '<vat-id>';
 ```
-
-**Note:**
+**
 
 *Unavailable* should always move the same amount as *Available* but in
 the other direction. That is, if you subtract 4 from *available*,
@@ -553,23 +530,21 @@ you\'ll likely need to add 4 to *unavailable*.
 *Unavailable* + *Available* should always = Pieces and Weight in Vat
 record thusly:
 
-``` mysql
+```sql
 SELECT Pieces, Weight FROM Vat WHERE VatID = '<vat-id>';
 ```
-
-\"Offered\" is almost never right, but I\'m fixing that.
+\"
 
 ## Add Line to Outbound 945
 
-``` mysql
+```sql
 SELECT CustomerOrderID, EDIDocID, CustomerOrderNum, OfferID, CustPONum FROM CustomerOrder WHERE CustomerOrderNum LIKE '%85271433';
 
 INSERT INTO CustomerOrderDetail 
 ( CustomerOrderID, EDIDocID, LineNum, Qty, QtyUOM, PartNum, ShipToPartNum, POLine ) 
 VALUES ( 5103, 34792, 19, 85, 'CA', '174827', '174827', '000190');
 ```
-
-### Example
+### 
 
 This case they sent an updated order too late, so updates, not inserts
 are required
@@ -585,7 +560,7 @@ the EDI DocID. LineNum probably doesn\'t matter.
 
 You should avoid duplicate POLines, but they are usually fine.
 
-``` mysql
+```sql
 -- Find BOTH Orders:
 select * from CustomerOrder where CustomerOrderNum like '%85315262' OR ShipToPONum like '%85315262';
 -- Find BOTH orders' lines
@@ -598,8 +573,7 @@ SELECT * FROM CustomerOrderDetail WHERE CustomerOrderID IN (5805);
 UPDATE CustomerOrderDetail SET LineNum = 15 WHERE CustomerOrderDetailID = 65530;
 UPDATE CustomerOrderDetail SET LineNum = 16 WHERE CustomerOrderDetailID = 65531;
 ```
-
-## AS2 Server Stuff
+## 
 
 ### General Information
 
@@ -638,15 +612,3 @@ Copy any .edi files from Silvia to:
 
 `/web/html/as2.oshkoshcheese.com/openas2/data/018219808-OCS_AS2/inbox`
 
-## Latest GitHub Commits
-
-*This section is automatically generated. If you add anything below
-this, it will probably get deleted.*
-
-- Last commit to master branch of
-  [Ferguson-Digital/tracker.oshkosh](https://github.com/Ferguson-Digital/tracker.oshkosh)
-  was at **10:30** on **Tuesday, November 1, 2022** by **Robert**: [See
-  the
-  commit](https://github.com/Ferguson-Digital/tracker.oshkosh/commit/35954bfaa843dbea364c59648c757027f5d3061d)
-
-[Category:Sites](Category:Sites "Category:Sites"){.wikilink}
