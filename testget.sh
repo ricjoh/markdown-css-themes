@@ -14,3 +14,13 @@ wget --no-check-certificate --quiet \
   ]
 }' \
      'https://fai2.getoutline.com/api/collections.list'
+
+
+
+wget --quiet \
+  --method POST \
+  --header 'Content-Type: application/json' \
+  --header 'Authorization: Bearer ol_api_ZY01R39BqiZXhO3A5rzQzHqFa6yAmRhuUXNNhj' \
+  --body-data '{"id":"4bbmp3Z062","permanent":false}' \
+  --output-document \
+  - https://app.getoutline.com/api/documents.delete
