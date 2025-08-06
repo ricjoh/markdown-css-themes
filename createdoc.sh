@@ -1,11 +1,15 @@
-// get TITLE and URL from STDIN tab-separated file
+#!/bin/bash
+
+count=0
+
+# get TITLE and URL from STDIN tab-separated file
 while IFS=$'\t' read -r URL TITLE; do
-  echo "Title: $TITLE"
-  echo "URL: $URL"
+  echo "Title: $TITLE" >&2
+  #  echo "URL: $URL"
+((count++))
+curl "$URL" -s | pandoc -f mediawiki -t markdown -o "./docs/$TITLE.md"
 
-curl -s "$URL" | pandoc -f mediawiki -t commonmark -o "$TITLE.md"
-
-./stripmd.pl < "$TITLE.md" > "$TITLE-clean.md"
+./stripmd.pl < "./docs/$TITLE.md" > "./docs/$TITLE-clean.md"
 
 ID=$(curl --location 'https://fai2.getoutline.com/api/documents.import' \
 -s \
@@ -16,9 +20,7 @@ ID=$(curl --location 'https://fai2.getoutline.com/api/documents.import' \
 --form 'parentDocumentId="d9fa9f5e-e7dc-4069-a576-165ac7a34eff"' \
 --form 'template="false"' \
 --form 'publish="true"' \
---form "file=@\"$TITLE-clean.md\"" | jq -r '.data.id')
-
-echo "Got ID $ID"
+--form "file=@\"./docs/$TITLE-clean.md\"" | jq -r '.data.id')
 
 curl --location 'https://fai2.getoutline.com/api/documents.update' \
 -s \
@@ -35,7 +37,12 @@ curl --location 'https://fai2.getoutline.com/api/documents.update' \
 "done": true
 }
 EOF
-) | jq '{id: .data.id, url: .data.url}'
+) | jq -r '.data.url | split( "-" ) | last'
+
+  if (( count % 20 == 0 )); then
+    echo "Processed $count documents — pausing for 60 seconds..." >&2
+    sleep 60
+  fi
 
 done
 

@@ -8,6 +8,11 @@ while (my $line = <STDIN>) {
     $mdfile .= $line;
 }
 
+# print $mdfile;
+
+$mdfile =~ m/live-urls=(.*?)$/m;
+my $url = $1||'';
+
 $mdfile =~ s/\`\{\{.*?\}\}\`\{=mediawiki\}//gs;
 $mdfile =~ s/\xc2\xa0/ /gs;
 $mdfile =~ s/## Latest GitHub Commits.*//gs;
@@ -26,12 +31,16 @@ while ($mdfile =~ m/\[#?([-A-Za-z0-9_\n ]*?)\]\([^)]*?\)\{.wikilink\}/s) {
 	$mdfile =~ s/\[#?[-A-Za-z0-9_\n ]*?\]\([^)]*?\)\{.wikilink\}/$newlink/s;
 }
 $mdfile =~ s/<div style="float: right; margin-left: 10pt">.*?<\/div>//s;
-$mdfile =~ s/<table">.*?<\/table>//s;
+$mdfile =~ s/<table>.*?<\/table>//s;
+$mdfile =~ s/<!--.*?-->//gs;
+$mdfile =~ s/\{#[a-z0-9_.]+?\}//gs;
+$mdfile =~ s/\{\.wikilink\}//gs;
 
 $mdfile =~ s/<a.*?href="([^"]*?)".*?>(.*?)<\/a\>/\[$2\]\($1\)/gs;
 $mdfile =~ s/<\/?div.*?>//gs;
 $mdfile =~ s/\[Category:.*?\)//gs;
 
+print "URL: [$url]($url)\n" if ( $url );
 print $mdfile;
 
 __END__
